@@ -67,6 +67,7 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
+  observations?: string; // Novo campo para notas da equipe
   examples?: string[];
   assignee: string;
   assigneeId?: string;

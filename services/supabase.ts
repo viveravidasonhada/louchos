@@ -16,10 +16,6 @@ export const generateId = () => {
   return `id-${timestamp}-${randomStr}`;
 };
 
-/**
- * Garante que a estratégia e todos os seus filhos (fases e tarefas) tenham IDs.
- * Isso previne o bug de "finalizar todas" caso algum dado antigo esteja sem ID.
- */
 const sanitizeStrategy = (strategy: LaunchStrategyJSON): LaunchStrategyJSON => {
   const sanitizedPhases = (strategy.phases || []).map(phase => {
     const phaseId = phase.id && phase.id !== 'undefined' ? phase.id : generateId();
@@ -47,24 +43,52 @@ const sanitizeStrategy = (strategy: LaunchStrategyJSON): LaunchStrategyJSON => {
 const MOCK_BLUEPRINTS: CampaignBlueprint[] = [
   {
     id: 'seed-semente',
-    name: 'Lançamento Semente (Validação)',
-    description: 'Validar oferta e audiência com baixo investimento. Ideal para quem está começando.',
-    phases: ['Pesquisa de Público e Avatar', 'Aquecimento no Instagram (Stories/Feed)', 'Convite para Aula ao Vivo (YouTube)', 'Abertura de Carrinho e Feedbacks'],
-    aiContext: 'Foque em gerar desejo através de conteúdo educacional.'
+    name: 'Lançamento Semente',
+    description: 'Validação de oferta com foco em feedback e caixa rápido.',
+    phases: ['Pesquisa de Avatar e Dores', 'Conteúdo de Aquecimento (Narrativa)', 'Convite para Evento Único', 'Abertura de Carrinho', 'Debriefing e Depoimentos'],
+    aiContext: 'Foque em gerar autoridade rápida e usar as dúvidas dos leads para fechar vendas.'
   },
   {
     id: 'seed-interno',
-    name: 'Lançamento Interno (Escala)',
-    description: 'Escalar faturamento com base de leads e múltiplos vídeos de conteúdo.',
-    phases: ['PPL (Pré-pré-lançamento)', 'PL (Pré-lançamento com 3 CPLs)', 'Lançamento (Venda)', 'Pós-venda e Downsell'],
-    aiContext: 'Copy focada em antecipação.'
+    name: 'Lançamento Interno (Fórmula)',
+    description: 'A estratégia clássica de 3 vídeos (CPLs) para escala máxima.',
+    phases: ['Pré-Pré-Lançamento (PPL)', 'Captação de Leads (Landing Page)', 'Evento de 3 CPLs (Pré-Lançamento)', 'O Carrinho (Lançamento)', 'Upsell e Recuperação'],
+    aiContext: 'A copy deve ser carregada de gatilhos: Antecipação, Prova Social e Autoridade.'
   },
   {
-    id: 'seed-meteorico',
-    name: 'Lançamento Meteórico (WhatsApp)',
-    description: 'Estratégia de 3 dias focada em grupos de WhatsApp e escassez extrema.',
-    phases: ['Captação de Leads para Grupos', 'Aquecimento nos Grupos', 'O Dia da Oferta (Abertura)', 'Encerramento e Limpeza'],
-    aiContext: 'Foque 100% em escassez e urência.'
+    id: 'seed-perpetuo',
+    name: 'Funil Perpétuo (Vendas Diárias)',
+    description: 'Estratégia de vendas automáticas rodando 24/7 com tráfego direto.',
+    phases: ['Configuração de Tracking e Pixel', 'VSL (Video Sales Letter) de Alta Conversão', 'Estrutura de Anúncios Cold/Warm', 'Otimização de Checkout', 'E-mail Marketing de Recuperação'],
+    aiContext: 'O foco é ROI diário. A IA deve sugerir variações de anúncios para teste A/B constante.'
+  },
+  {
+    id: 'seed-youtube',
+    name: 'YouTube Authority Strategy',
+    description: 'Crescimento orgânico e vendas através de vídeos longos e SEO.',
+    phases: ['Pesquisa de Palavras-Chave (SEO)', 'Roteirização de Vídeos de Retenção', 'Estratégia de Thumbnails Magnéticas', 'Configuração de CTAs no Meio do Vídeo', 'Live de Vendas Semanal'],
+    aiContext: 'Priorize roteiros que resolvam uma dor específica nos primeiros 30 segundos.'
+  },
+  {
+    id: 'seed-instagram',
+    name: 'Instagram Sales Machine',
+    description: 'Foco em Stories, Reels e automação de Direct (ManyChat).',
+    phases: ['Linha Editorial de Engajamento', 'Desafio de 15 dias nos Reels', 'Funil de Direct (Automação)', 'Venda via Stories (Sequência Diária)', 'Destaques Estratégicos'],
+    aiContext: 'Sugira sequências de Stories que usem enquetes para segmentar o interesse do público.'
+  },
+  {
+    id: 'seed-tiktok',
+    name: 'TikTok Viral Growth',
+    description: 'Captar atenção rápida e converter via Link na Bio ou WhatsApp.',
+    phases: ['Monitoramento de Trends Relevantes', 'Produção em Massa de Hooks (Ganchos)', 'Edição Dinâmica (Estilo Retenção)', 'Transição de Perfil para Business', 'Funil de Atendimento no WhatsApp'],
+    aiContext: 'Os vídeos devem ter ritmo acelerado. Cada tarefa deve focar em gerar curiosidade extrema.'
+  },
+  {
+    id: 'seed-possuido',
+    name: 'Lançamento Possuído',
+    description: 'Venda baseada em oferta irresistível e bônus agressivos por tempo limitado.',
+    phases: ['Construção da Super Oferta', 'Aquecimento Via Lista VIP', 'Abertura Antecipada (Early Bird)', 'O Dia do "Possuído" (Pico de Vendas)', 'Encerramento com Escassez Real'],
+    aiContext: 'Foque 100% no gatilho do Bônus e na Inversão de Risco.'
   }
 ];
 
@@ -136,28 +160,23 @@ export const getProjectsList = async (): Promise<Partial<LaunchStrategyJSON>[]> 
 export const getProjectById = async (id: string): Promise<LaunchStrategyJSON | null> => {
   const { data: proj, error } = await supabase.from('projects').select('*').eq('id', id).single();
   if (error || !proj) return null;
-  // Sanitiza ao carregar para corrigir dados legados
   const strategy = sanitizeStrategy(proj.strategy_json);
   return { ...strategy, id: proj.id, theme: proj.theme, createdAt: proj.created_at };
 };
 
 export const saveProject = async (input: LaunchInput, strategy: LaunchStrategyJSON): Promise<LaunchStrategyJSON> => {
-  // Sanitiza antes de salvar
   const sanitizedStrategy = sanitizeStrategy(strategy);
-
   const { data, error } = await supabase.from('projects').insert([{
       theme: input.theme,
       expert_id: input.expertId,
       input_json: input,
       strategy_json: sanitizedStrategy
   }]).select().single();
-
   if (error) throw error;
   return { ...sanitizedStrategy, id: data.id, theme: data.theme, createdAt: data.created_at };
 };
 
 export const updateProjectStrategy = async (id: string, strategy: LaunchStrategyJSON): Promise<void> => {
-  // Sanitiza antes de atualizar para garantir integridade
   const sanitizedStrategy = sanitizeStrategy(strategy);
   const { error } = await supabase.from('projects').update({ strategy_json: sanitizedStrategy }).eq('id', id);
   if (error) throw error;

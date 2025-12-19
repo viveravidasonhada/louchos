@@ -30,8 +30,9 @@ import {
   Trash2,
   RefreshCw,
   Users,
-  // Add missing ChevronLeft icon
-  ChevronLeft
+  ChevronLeft,
+  ShieldCheck,
+  User as UserIcon
 } from 'lucide-react';
 
 type ViewState = 'login' | 'home' | 'experts' | 'team' | 'campaigns' | 'new_project' | 'dashboard';
@@ -148,13 +149,11 @@ const App: React.FC = () => {
       await deleteProject(projectId);
       setProjectsList(prev => prev.filter(p => p.id !== projectId));
       
-      // Se estiver no dashboard do projeto deletado, volta pra home
       if (projectData?.id === projectId) {
          setProjectData(null);
          setView('home');
       }
       
-      // Força recarregamento da lista
       await loadInitialData(true);
     } catch (error) {
       console.error("Erro ao deletar projeto:", error);
@@ -299,12 +298,35 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-indigo-500 selection:text-white flex flex-col font-sans">
       <nav className="border-b border-slate-800 bg-[#0f172a]/95 backdrop-blur-2xl sticky top-0 z-50 px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView('home')}>
-            <div className="bg-indigo-600 p-2 rounded-lg group-hover:rotate-12 transition-transform">
-              <Cpu className="text-white" size={24} />
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView('home')}>
+              <div className="bg-indigo-600 p-2 rounded-lg group-hover:rotate-12 transition-transform">
+                <Cpu className="text-white" size={24} />
+              </div>
+              <span className="text-2xl font-black text-white tracking-tighter">Launch<span className="text-indigo-500">OS</span></span>
             </div>
-            <span className="text-2xl font-black text-white tracking-tighter">Launch<span className="text-indigo-500">OS</span></span>
+            
+            {/* Logged User Badge */}
+            {currentUser && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-xl animate-fadeIn">
+                {currentUser === 'admin' ? (
+                  <>
+                    <ShieldCheck size={16} className="text-indigo-400" />
+                    <span className="text-xs font-black text-white uppercase tracking-tighter">Admin Principal</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-bold">
+                      {currentUser.name.charAt(0)}
+                    </div>
+                    <span className="text-xs font-bold text-slate-300">{currentUser.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-md font-black uppercase">{(currentUser as TeamMember).role}</span>
+                  </>
+                )}
+              </div>
+            )}
           </div>
+
           <div className="flex items-center gap-6">
             <button onClick={handleLogout} className="text-slate-400 hover:text-white transition-all bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-slate-700">
               <LogOut size={18} />

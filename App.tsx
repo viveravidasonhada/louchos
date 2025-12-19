@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import LaunchForm from './components/LaunchForm.tsx';
-import LaunchDashboard from './components/LaunchDashboard.tsx';
-import ExpertManager from './components/ExpertManager.tsx';
-import TeamManager from './components/TeamManager.tsx';
-import CampaignManager from './components/CampaignManager.tsx';
-import Login from './components/Login.tsx';
-import { generateLaunchStrategy } from './services/geminiService.ts';
+import LaunchForm from './components/LaunchForm';
+import LaunchDashboard from './components/LaunchDashboard';
+import ExpertManager from './components/ExpertManager';
+import TeamManager from './components/TeamManager';
+import CampaignManager from './components/CampaignManager';
+import Login from './components/Login';
+import { generateLaunchStrategy } from './services/geminiService';
 import { 
   getExperts, 
   getTeam, 
@@ -16,8 +16,8 @@ import {
   updateProjectStrategy, 
   getCampaignBlueprints, 
   deleteProject
-} from './services/supabase.ts';
-import { LaunchInput, LaunchPlanState, Expert, TeamMember, LaunchStrategyJSON, CampaignBlueprint } from './types.ts';
+} from './services/supabase';
+import { LaunchInput, LaunchPlanState, Expert, TeamMember, LaunchStrategyJSON, CampaignBlueprint } from './types';
 import { 
   Cpu, 
   PlusCircle, 
@@ -29,7 +29,9 @@ import {
   Fingerprint,
   Trash2,
   RefreshCw,
-  Users
+  Users,
+  // Add missing ChevronLeft icon
+  ChevronLeft
 } from 'lucide-react';
 
 type ViewState = 'login' | 'home' | 'experts' | 'team' | 'campaigns' | 'new_project' | 'dashboard';
@@ -139,16 +141,26 @@ const App: React.FC = () => {
   };
 
   const handleDeleteProject = async (projectId: string) => {
-    if (!window.confirm("Apagar projeto permanentemente?")) return;
+    if (!window.confirm("Você tem certeza que deseja apagar este projeto permanentemente do servidor?")) return;
+    
+    setIsSyncing(true);
     try {
       await deleteProject(projectId);
       setProjectsList(prev => prev.filter(p => p.id !== projectId));
+      
+      // Se estiver no dashboard do projeto deletado, volta pra home
       if (projectData?.id === projectId) {
          setProjectData(null);
          setView('home');
       }
+      
+      // Força recarregamento da lista
+      await loadInitialData(true);
     } catch (error) {
-      alert("Erro ao excluir.");
+      console.error("Erro ao deletar projeto:", error);
+      alert("Erro ao excluir do servidor. Verifique sua conexão.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -166,18 +178,15 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch(view) {
       case 'experts':
-        // Correção TS7006: parâmetro tipado explicitamente
         return <ExpertManager experts={experts} onSave={(exs: Expert[]) => { setExperts(exs); loadInitialData(true); }} onClose={() => setView('home')} />;
       case 'team':
-        // Correção TS7006: parâmetro tipado explicitamente
         return <TeamManager team={team} onSave={(t: TeamMember[]) => { setTeam(t); loadInitialData(true); }} onClose={() => setView('home')} />;
       case 'campaigns':
-        // Correção TS7006: parâmetro tipado explicitamente
         return <CampaignManager blueprints={blueprints} onSave={(b: CampaignBlueprint[]) => { setBlueprints(b); loadInitialData(true); }} onClose={() => setView('home')} />;
       case 'new_project':
         return (
           <div className="max-w-2xl mx-auto">
-            <button onClick={() => setView('home')} className="mb-4 text-slate-400 hover:text-white">&larr; Voltar para Home</button>
+            <button onClick={() => setView('home')} className="mb-4 text-slate-400 hover:text-white flex items-center gap-2"><ChevronLeft size={16}/> Voltar para Home</button>
             <LaunchForm experts={experts} blueprints={blueprints} onSubmit={handleCreateLaunch} isLoading={planState.isLoading} onOpenExpertManager={() => setView('experts')} />
           </div>
         );
@@ -190,7 +199,14 @@ const App: React.FC = () => {
                   <p className="text-slate-500 text-sm animate-pulse">Sincronizando estratégia com a nuvem...</p>
                </div>
             ) : projectData ? (
-              <LaunchDashboard data={projectData} projectsList={projectsList} currentUser={currentUser} onUpdateProject={handleUpdateProject} onSwitchProject={handleSwitchProject} onDeleteProject={handleDeleteProject} />
+              <LaunchDashboard 
+                data={projectData} 
+                projectsList={projectsList} 
+                currentUser={currentUser} 
+                onUpdateProject={handleUpdateProject} 
+                onSwitchProject={handleSwitchProject} 
+                onDeleteProject={handleDeleteProject} 
+              />
             ) : <p className="text-center p-20 text-slate-500">Projeto não encontrado.</p>}
           </div>
         );

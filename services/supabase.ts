@@ -17,18 +17,23 @@ export const generateId = () => {
 };
 
 const sanitizeStrategy = (strategy: LaunchStrategyJSON): LaunchStrategyJSON => {
-  const sanitizedPhases = (strategy.phases || []).map(phase => {
+  const sanitizedPhases: LaunchPhase[] = (strategy.phases || []).map(phase => {
     const phaseId = phase.id && phase.id !== 'undefined' ? phase.id : generateId();
     return {
       ...phase,
       id: phaseId,
+      status: phase.status || 'locked',
       tasks: (phase.tasks || []).map(task => {
         const taskId = task.id && task.id !== 'undefined' ? task.id : generateId();
         return {
           ...task,
           id: taskId,
           status: task.status || 'pending',
-          attachments: task.attachments || []
+          attachments: task.attachments || [],
+          observations: task.observations || '',
+          script: task.script || '',
+          strategicRationale: task.strategicRationale || '',
+          scriptChannel: task.scriptChannel || 'whatsapp'
         };
       })
     };
@@ -36,7 +41,8 @@ const sanitizeStrategy = (strategy: LaunchStrategyJSON): LaunchStrategyJSON => {
 
   return {
     ...strategy,
-    phases: sanitizedPhases
+    phases: sanitizedPhases,
+    messageFlows: strategy.messageFlows || []
   };
 };
 
@@ -44,51 +50,67 @@ const MOCK_BLUEPRINTS: CampaignBlueprint[] = [
   {
     id: 'seed-semente',
     name: 'Lançamento Semente',
-    description: 'Validação de oferta com foco em feedback e caixa rápido.',
-    phases: ['Pesquisa de Avatar e Dores', 'Conteúdo de Aquecimento (Narrativa)', 'Convite para Evento Único', 'Abertura de Carrinho', 'Debriefing e Depoimentos'],
-    aiContext: 'Foque em gerar autoridade rápida e usar as dúvidas dos leads para fechar vendas.'
+    description: 'Validação de oferta e produto. Venda antes da produção final.',
+    phases: ['Pré-lançamento (Atração)', 'Lançamento (Webinário)', 'Fechamento (Urgência)', 'Pós-lançamento (Onboarding)'],
+    aiContext: `ESTRUTURA TÁTICA SEMENTE:
+    1. PRÉ: Conteúdo de valor em Reels/Stories, isca digital e convite para aula ao vivo única.
+    2. LANÇAMENTO: Live de vendas única com pitch de gatilho de escassez. Interação em tempo real no chat.
+    3. FECHAMENTO: Sequência de e-mails diários (4 dias) e WhatsApp Broadcast. Contato 1-a-1 com leads quentes (Closer).
+    4. PÓS: Entrega de módulos semanais ao vivo para colher feedback e criar o produto com os alunos.`
   },
   {
     id: 'seed-interno',
-    name: 'Lançamento Interno (Fórmula)',
-    description: 'A estratégia clássica de 3 vídeos (CPLs) para escala máxima.',
-    phases: ['Pré-Pré-Lançamento (PPL)', 'Captação de Leads (Landing Page)', 'Evento de 3 CPLs (Pré-Lançamento)', 'O Carrinho (Lançamento)', 'Upsell e Recuperação'],
-    aiContext: 'A copy deve ser carregada de gatilhos: Antecipação, Prova Social e Autoridade.'
+    name: 'Lançamento Interno (Clássico)',
+    description: 'Estratégia de 3 CPLs para escala máxima com base própria.',
+    phases: ['Aquecimento (PPL)', 'Pré-lançamento (CPLs)', 'Lançamento (Carrinho)', 'Fechamento & Pós'],
+    aiContext: `ESTRUTURA TÁTICA INTERNO:
+    1. AQUECIMENTO (3 semanas): Reativar audiência com posts de valor e "Tiro de Alerta".
+    2. PRÉ-LANÇAMENTO: 3 Vídeos (CPL1: Oportunidade, CPL2: Metodologia, CPL3: Atalho/Oferta).
+    3. LANÇAMENTO (7 dias): Carrinho aberto. Sequência de e-mails D1-D7. Live de Q&A no dia 1 e dia 7.
+    4. PÓS: Onboarding automatizado e Reabertura Passariana (se aplicável).`
+  },
+  {
+    id: 'seed-externo',
+    name: 'Lançamento Externo',
+    description: 'Foco em parcerias, afiliados e influenciadores para escala externa.',
+    phases: ['Recrutamento de Parceiros', 'Pré-lançamento Ampliado', 'Execução (CPL + Carrinho)', 'Debriefing com Parceiros'],
+    aiContext: `ESTRUTURA TÁTICA EXTERNO:
+    1. RECRUTAMENTO: Seleção de parceiros, kit de materiais (swipes, artes, links) e alinhamento de comissões (30-50%).
+    2. AQUECIMENTO: Colabs com parceiros e lives conjuntas para transferir autoridade.
+    3. EXECUÇÃO: Gestão de tráfego em escala. Suporte robusto para dúvidas de público frio.
+    4. FECHAMENTO: Cálculo de comissões e análise de performance por afiliado.`
   },
   {
     id: 'seed-perpetuo',
-    name: 'Funil Perpétuo (Vendas Diárias)',
-    description: 'Estratégia de vendas automáticas rodando 24/7 com tráfego direto.',
-    phases: ['Configuração de Tracking e Pixel', 'VSL (Video Sales Letter) de Alta Conversão', 'Estrutura de Anúncios Cold/Warm', 'Otimização de Checkout', 'E-mail Marketing de Recuperação'],
-    aiContext: 'O foco é ROI diário. A IA deve sugerir variações de anúncios para teste A/B constante.'
+    name: 'Lançamento Perpétuo',
+    description: 'Vendas diárias automáticas com funil de nutrição constante.',
+    phases: ['Setup do Funil', 'Aquisição de Tráfego', 'Nutrição & Vendas', 'Suporte & Manutenção'],
+    aiContext: `ESTRUTURA TÁTICA PERPÉTUO:
+    1. SETUP: Landing page, VSL (Video Sales Letter) e automação de e-mails (7 dias).
+    2. TRÁFEGO: Anúncios sempre ativos (Ads) renovados a cada 2-3 semanas para evitar saturação.
+    3. AUTOMAÇÃO: Gatilhos de escassez individual (Deadline Funnel) e segmentação por comportamento.
+    4. MANUTENÇÃO: Testes A/B constantes em headlines e botões de checkout.`
   },
   {
-    id: 'seed-youtube',
-    name: 'YouTube Authority Strategy',
-    description: 'Crescimento orgânico e vendas através de vídeos longos e SEO.',
-    phases: ['Pesquisa de Palavras-Chave (SEO)', 'Roteirização de Vídeos de Retenção', 'Estratégia de Thumbnails Magnéticas', 'Configuração de CTAs no Meio do Vídeo', 'Live de Vendas Semanal'],
-    aiContext: 'Priorize roteiros que resolvam uma dor específica nos primeiros 30 segundos.'
+    id: 'seed-relampago',
+    name: 'Lançamento Relâmpago',
+    description: 'Injeção de caixa rápido (5-7 dias) para base engajada.',
+    phases: ['Definição da Oferta', 'Execução (Sequência Curta)', 'Fechamento'],
+    aiContext: `ESTRUTURA TÁTICA RELÂMPAGO:
+    1. OFERTA: Desconto agressivo ou bônus inédito por tempo curtíssimo.
+    2. EXECUÇÃO: Sequência de 4 e-mails (Anúncio, Benefícios, FAQ/Dúvidas, Last Call).
+    3. FOCO: 100% em Gatilhos de Urgência e Escassez para base que já conhece o produto.`
   },
   {
-    id: 'seed-instagram',
-    name: 'Instagram Sales Machine',
-    description: 'Foco em Stories, Reels e automação de Direct (ManyChat).',
-    phases: ['Linha Editorial de Engajamento', 'Desafio de 15 dias nos Reels', 'Funil de Direct (Automação)', 'Venda via Stories (Sequência Diária)', 'Destaques Estratégicos'],
-    aiContext: 'Sugira sequências de Stories que usem enquetes para segmentar o interesse do público.'
-  },
-  {
-    id: 'seed-tiktok',
-    name: 'TikTok Viral Growth',
-    description: 'Captar atenção rápida e converter via Link na Bio ou WhatsApp.',
-    phases: ['Monitoramento de Trends Relevantes', 'Produção em Massa de Hooks (Ganchos)', 'Edição Dinâmica (Estilo Retenção)', 'Transição de Perfil para Business', 'Funil de Atendimento no WhatsApp'],
-    aiContext: 'Os vídeos devem ter ritmo acelerado. Cada tarefa deve focar em gerar curiosidade extrema.'
-  },
-  {
-    id: 'seed-possuido',
-    name: 'Lançamento Possuído',
-    description: 'Venda baseada em oferta irresistível e bônus agressivos por tempo limitado.',
-    phases: ['Construção da Super Oferta', 'Aquecimento Via Lista VIP', 'Abertura Antecipada (Early Bird)', 'O Dia do "Possuído" (Pico de Vendas)', 'Encerramento com Escassez Real'],
-    aiContext: 'Foque 100% no gatilho do Bônus e na Inversão de Risco.'
+    id: 'seed-meteorico',
+    name: 'Lançamento Meteórico',
+    description: 'Vendas ultra-rápidas via Grupos VIP de WhatsApp.',
+    phases: ['Captação VIP', 'Aquecimento no Grupo', 'Dia do Lançamento', 'Pós-Meteórico'],
+    aiContext: `ESTRUTURA TÁTICA METEÓRICO:
+    1. CAPTAÇÃO: Convite para grupo silencioso. Gatilhos de Pertencimento e Antecipação.
+    2. AQUECIMENTO (D1-D3): Vídeos informais (celular), revelação do desconto e quebra de objeções.
+    3. LANÇAMENTO (D4): Abertura do carrinho no grupo. Prova social instantânea ("Parabéns Fulano!").
+    4. FECHAMENTO: 24h a 48h de vendas intensas com suporte total no privado.`
   }
 ];
 
@@ -116,7 +138,8 @@ export const saveExpert = async (expert: Expert): Promise<Expert> => {
 };
 
 export const deleteExpert = async (id: string): Promise<void> => {
-  await supabase.from('experts').delete().eq('id', id);
+  const { error } = await supabase.from('experts').delete().eq('id', id);
+  if (error) throw error;
 };
 
 export const getTeam = async (): Promise<TeamMember[]> => {
@@ -133,7 +156,8 @@ export const saveTeamMember = async (member: TeamMember): Promise<TeamMember> =>
 };
 
 export const deleteTeamMember = async (id: string): Promise<void> => {
-  await supabase.from('team').delete().eq('id', id);
+  const { error } = await supabase.from('team').delete().eq('id', id);
+  if (error) throw error;
 };
 
 export const getCampaignBlueprints = async (): Promise<CampaignBlueprint[]> => {
@@ -149,7 +173,8 @@ export const saveCampaignBlueprint = async (bp: CampaignBlueprint): Promise<Camp
 };
 
 export const deleteCampaignBlueprint = async (id: string): Promise<void> => {
-  await supabase.from('campaign_blueprints').delete().eq('id', id);
+  const { error } = await supabase.from('campaign_blueprints').delete().eq('id', id);
+  if (error) throw error;
 };
 
 export const getProjectsList = async (): Promise<Partial<LaunchStrategyJSON>[]> => {
@@ -183,5 +208,9 @@ export const updateProjectStrategy = async (id: string, strategy: LaunchStrategy
 };
 
 export const deleteProject = async (id: string): Promise<void> => {
-  await supabase.from('projects').delete().eq('id', id);
+  const { error } = await supabase.from('projects').delete().eq('id', id);
+  if (error) {
+    console.error("Erro ao deletar projeto no Supabase:", error);
+    throw new Error(error.message);
+  }
 };

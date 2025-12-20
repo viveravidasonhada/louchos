@@ -9,7 +9,7 @@ interface TeamManagerProps {
   onClose: () => void;
 }
 
-const ROLES = ['Strategist', 'Copywriter', 'Tráfego', 'Designer', 'Tech', 'VideoMaker', 'Social Media', 'Support'];
+const ROLES = ['Especialista','Estrategista', 'Copywriter', 'Tráfego', 'Designer', 'Tech', 'VideoMaker', 'Social Media', 'Suporte'];
 
 const TeamManager: React.FC<TeamManagerProps> = ({ team, onSave, onClose }) => {
   const [newName, setNewName] = useState('');

@@ -63,18 +63,29 @@ export interface Attachment {
   uploadedAt: string;
 }
 
+export interface MessageFlow {
+  channel: 'whatsapp' | 'email' | 'instagram' | 'manychat' | 'youtube_live' | 'community';
+  trigger: string; 
+  content: string;
+  cta: string;
+  responsibleRole: string;
+}
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
-  observations?: string; // Novo campo para notas da equipe
+  strategicRationale?: string; // O "porquê" estratégico desta tarefa
+  observations?: string;
   examples?: string[];
+  script?: string; 
+  scriptChannel?: 'whatsapp' | 'email' | 'instagram' | 'manychat' | 'youtube_live' | 'community';
   assignee: string;
   assigneeId?: string;
   status: 'pending' | 'in_progress' | 'review' | 'done';
   dependency?: string;
   deadline?: string;
-  attachments: Attachment[]; // Sempre presente como array (vazio por padrão)
+  attachments: Attachment[];
   comments?: string[];
   completedAt?: string;
 }
@@ -98,6 +109,7 @@ export interface LaunchStrategyJSON {
     styleAnalysis: string;
   };
   phases: LaunchPhase[];
+  messageFlows?: MessageFlow[]; 
   fullStrategyContent: string;
 }
 

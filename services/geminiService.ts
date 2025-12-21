@@ -22,26 +22,26 @@ export const generateLaunchStrategy = async (
 
   const teamList = team.map(m => `${m.name} (${m.role})`).join(", ");
 
-  const SYSTEM_PROMPT = `Você é um MESTRE ESTRATEGISTA DE LANÇAMENTOS com 15 anos de experiência e múltiplos "7 em 7". 
-Sua missão é criar a ESTRATÉGIA COMPLETA de um lançamento, incorporando a essência do Expert e distribuindo tarefas para a EQUIPE disponível.
+  const SYSTEM_PROMPT = `Você é um MESTRE ESTRATEGISTA DE LANÇAMENTOS (Elite Level) com foco em ROI e Execução.
+Sua missão é criar o PLANO DE GUERRA de um lançamento, incorporando a essência do Expert e distribuindo tarefas técnicas para a EQUIPE disponível.
 
-EQUIPE DISPONÍVEL (Atribua cada tarefa a um desses nomes):
+EQUIPE DISPONÍVEL (Distribua as tarefas baseando-se nestes nomes e cargos):
 ${teamList}
 
-DIRETRIZES DE ESTRATEGISTA:
-1. ESSÊNCIA DO EXPERT: Use o tom "${brandData.toneOfVoice}" e o arquétipo "${brandData.archetype}". O manifesto "${brandData.brandManifesto}" deve guiar a narrativa principal.
-2. VISÃO 360º: A estratégia deve cobrir: Tráfego Pago, Design, Copywriting, Configuração Técnica, Vídeo e Suporte.
-3. BLUEPRINT: Siga rigorosamente a estrutura técnica do modelo: ${blueprint?.aiContext}.
-4. UNIFICAÇÃO: Cada tarefa deve conter:
-   - 'strategicRationale': Explicação sênior do porquê esta tarefa é vital para o ROI.
-   - 'script': Se for uma tarefa de comunicação (WhatsApp, E-mail, Vídeo, Chat de Live), forneça a copy pronta.
+REGRAS DE ESTRATEGISTA:
+1. ESSÊNCIA DO EXPERT: Use o tom "${brandData.toneOfVoice}" e o arquétipo "${brandData.archetype}".
+2. ESTRUTURA TÉCNICA (BLUEPRINT): Você DEVE seguir a lógica técnica deste modelo: ${blueprint?.aiContext}. 
+   - Ex: Se for Lançamento Interno, inclua as fases de PPL, CPLs e a hierarquia de remarketing Sobral para o Gestor de Tráfego.
+3. TAREFAS NOMICAS: Cada tarefa deve ser atribuída a uma pessoa real da lista acima.
+4. RATIONALE ESTRATÉGICO: Explique o porquê técnico de cada ação (ex: "Usamos Meta Leads Ads nesta fase para baixar o CPL").
+5. COMUNICAÇÃO: Forneça scripts prontos para WhatsApp, E-mails e Anúncios.
 
-RESULTADO: Um JSON estruturado onde a estratégia se traduz em ações concretas para cada membro da equipe.`;
+RESULTADO: Um JSON estruturado onde a estratégia se traduz em ações nominais e prazos lógicos dentro do período ${input.startDate} a ${input.endDate}.`;
 
   const responseSchema = {
     type: Type.OBJECT,
     properties: {
-      executiveSummary: { type: Type.STRING, description: "Plano de guerra macro e visão estratégica do lançamento" },
+      executiveSummary: { type: Type.STRING, description: "Resumo macro da estratégia e visão de faturamento" },
       phases: {
         type: Type.ARRAY,
         items: {
@@ -56,10 +56,10 @@ RESULTADO: Um JSON estruturado onde a estratégia se traduz em ações concretas
                 properties: {
                   title: { type: Type.STRING },
                   description: { type: Type.STRING },
-                  strategicRationale: { type: Type.STRING, description: "O pensamento estratégico por trás desta ação" },
-                  script: { type: Type.STRING, description: "Copy pronta ou roteiro detalhado (se aplicável)" },
+                  strategicRationale: { type: Type.STRING, description: "O pensamento por trás desta ação" },
+                  script: { type: Type.STRING, description: "Copy ou roteiro pronto" },
                   scriptChannel: { type: Type.STRING },
-                  assignee: { type: Type.STRING, description: "NOME do membro da equipe atribuído (deve ser um dos nomes fornecidos)" },
+                  assignee: { type: Type.STRING, description: "NOME do membro da equipe (obrigatório)" },
                   deadline: { type: Type.STRING }
                 },
                 required: ["title", "assignee", "deadline", "strategicRationale"]
@@ -76,7 +76,7 @@ RESULTADO: Um JSON estruturado onde a estratégia se traduz em ações concretas
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
-      contents: `Expert: ${expert.name}. Nicho: ${expert.niche}. Tema: ${input.theme}. Datas: ${input.startDate} a ${input.endDate}. Objetivo: ${input.goal}.`,
+      contents: `Expert: ${expert.name}. Nicho: ${expert.niche}. Tema: ${input.theme}. Datas: ${input.startDate} a ${input.endDate}. Meta: ${input.goal}. Budget Tráfego: ${input.budget}. Público-alvo: ${input.targetAudience}.`,
       config: {
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: "application/json",

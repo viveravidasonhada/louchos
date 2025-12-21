@@ -49,68 +49,79 @@ const sanitizeStrategy = (strategy: LaunchStrategyJSON): LaunchStrategyJSON => {
 const MOCK_BLUEPRINTS: CampaignBlueprint[] = [
   {
     id: 'seed-semente',
-    name: 'Lançamento Semente',
-    description: 'Validação de oferta e produto. Venda antes da produção final.',
-    phases: ['Pré-lançamento (Atração)', 'Lançamento (Webinário)', 'Fechamento (Urgência)', 'Pós-lançamento (Onboarding)'],
+    name: 'Lançamento Semente (Validação)',
+    description: 'Focado em validar oferta e produto com baixo investimento.',
+    defaultDurationDays: 18,
+    phases: ['Captação de Leads', 'Show-up (Aquecimento)', 'Live de Vendas', 'Carrinho Aberto', 'Pós-Venda'],
     aiContext: `ESTRUTURA TÁTICA SEMENTE:
-    1. PRÉ: Conteúdo de valor em Reels/Stories, isca digital e convite para aula ao vivo única.
-    2. LANÇAMENTO: Live de vendas única com pitch de gatilho de escassez. Interação em tempo real no chat.
-    3. FECHAMENTO: Sequência de e-mails diários (4 dias) e WhatsApp Broadcast. Contato 1-a-1 com leads quentes (Closer).
-    4. PÓS: Entrega de módulos semanais ao vivo para colher feedback e criar o produto com os alunos.`
+    - TRÁFEGO: 70% Verba em Captação (Meta Ads). 10% em Lembretes (Alcance). 20% em Remarketing de Venda.
+    - OBJETIVO: Coletar dúvidas na captação para usar no pitch da live.
+    - COPY: Foco em "Oportunidade de Ouro" e construção conjunta do produto.`
   },
   {
     id: 'seed-interno',
-    name: 'Lançamento Interno (Clássico)',
-    description: 'Estratégia de 3 CPLs para escala máxima com base própria.',
-    phases: ['Aquecimento (PPL)', 'Pré-lançamento (CPLs)', 'Lançamento (Carrinho)', 'Fechamento & Pós'],
+    name: 'Lançamento Interno (Alta Performance)',
+    description: 'Estratégia clássica de 3 CPLs para escala com base própria.',
+    defaultDurationDays: 42,
+    phases: ['PPL: Construção de Lista', 'PL: Conteúdo CPL (1, 2, 3)', 'Lançamento: Carrinho Aberto', 'Urgência: Últimas Horas', 'Pós-Lançamento'],
     aiContext: `ESTRUTURA TÁTICA INTERNO:
-    1. AQUECIMENTO (3 semanas): Reativar audiência com posts de valor e "Tiro de Alerta".
-    2. PRÉ-LANÇAMENTO: 3 Vídeos (CPL1: Oportunidade, CPL2: Metodologia, CPL3: Atalho/Oferta).
-    3. LANÇAMENTO (7 dias): Carrinho aberto. Sequência de e-mails D1-D7. Live de Q&A no dia 1 e dia 7.
-    4. PÓS: Onboarding automatizado e Reabertura Passariana (se aplicável).`
+    - TRÁFEGO PPL (40-60%): Meta Ads e YouTube Discovery para novos leads e engajamento da base.
+    - TRÁFEGO PL (15-25%): Distribuição dos CPLs via Video Views no FB/IG e In-Stream no YouTube. Omnipresença via Google Display.
+    - TRÁFEGO VENDAS (30-40%): Conversão focada em Hierarquia Sobral (Checkout > Inscritos > Engajados). Google Search para proteção de marca.
+    - BENCHMARKS: ROI 5-10x. CPL R$2,00 - R$10,00.`
   },
   {
     id: 'seed-externo',
-    name: 'Lançamento Externo',
-    description: 'Foco em parcerias, afiliados e influenciadores para escala externa.',
-    phases: ['Recrutamento de Parceiros', 'Pré-lançamento Ampliado', 'Execução (CPL + Carrinho)', 'Debriefing com Parceiros'],
+    name: 'Lançamento Externo (Escala Massiva)',
+    description: 'Expansão agressiva através de parceiros e rede de afiliados.',
+    defaultDurationDays: 45,
+    phases: ['Recrutamento de Parceiros & Kit', 'Captação de Leads em Massa', 'PL: Conteúdo Amplificado', 'Vendas: Remarketing Multicamadas', 'Urgência & Debriefing'],
     aiContext: `ESTRUTURA TÁTICA EXTERNO:
-    1. RECRUTAMENTO: Seleção de parceiros, kit de materiais (swipes, artes, links) e alinhamento de comissões (30-50%).
-    2. AQUECIMENTO: Colabs com parceiros e lives conjuntas para transferir autoridade.
-    3. EXECUÇÃO: Gestão de tráfego em escala. Suporte robusto para dúvidas de público frio.
-    4. FECHAMENTO: Cálculo de comissões e análise de performance por afiliado.`
+    - MAESTRO: Coordenar pixels com afiliados e evitar canibalização no Google Search.
+    - CANAIS: Meta, YouTube, TikTok Ads e Mídia Programática (Taboola) para awareness.
+    - TRÁFEGO VENDAS: Remarketing pesado para leads de parceiros. Campanhas de "re-educação" para leads menos engajados.
+    - BENCHMARKS: Faturamento 7 dígitos. CPL R$10-15. ROI 5-8x.`
   },
   {
     id: 'seed-perpetuo',
-    name: 'Lançamento Perpétuo',
-    description: 'Vendas diárias automáticas com funil de nutrição constante.',
-    phases: ['Setup do Funil', 'Aquisição de Tráfego', 'Nutrição & Vendas', 'Suporte & Manutenção'],
+    name: 'Lançamento Perpétuo (Funil Always-On)',
+    description: 'Vendas diárias automáticas com funil de nutrição evergreen.',
+    defaultDurationDays: 30,
+    phases: ['Setup do Funil Contínuo', 'Aquisição Topo de Funil', 'Nutrição Meio de Funil', 'Conversão Fundo de Funil', 'Otimização & Escala LTV'],
     aiContext: `ESTRUTURA TÁTICA PERPÉTUO:
-    1. SETUP: Landing page, VSL (Video Sales Letter) e automação de e-mails (7 dias).
-    2. TRÁFEGO: Anúncios sempre ativos (Ads) renovados a cada 2-3 semanas para evitar saturação.
-    3. AUTOMAÇÃO: Gatilhos de escassez individual (Deadline Funnel) e segmentação por comportamento.
-    4. MANUTENÇÃO: Testes A/B constantes em headlines e botões de checkout.`
+    - TRÁFEGO: Campanhas Always-On. Prospecção constante (Lookalikes amplos).
+    - URGÊNCIA: Implementar Deadline Funnel (escassez individualizada).
+    - REMARKETING: Segmentação por tempo (3, 7, 14, 30 dias).
+    - ESCALA: Técnica "Montinho-Montão". Foco em ROI estável 3-5x e CAC < LTV.
+    - EXCLUSÃO: Rigorosa exclusão de compradores de todas as campanhas.`
   },
   {
     id: 'seed-relampago',
-    name: 'Lançamento Relâmpago',
-    description: 'Injeção de caixa rápido (5-7 dias) para base engajada.',
-    phases: ['Definição da Oferta', 'Execução (Sequência Curta)', 'Fechamento'],
-    aiContext: `ESTRUTURA TÁTICA RELÂMPAGO:
-    1. OFERTA: Desconto agressivo ou bônus inédito por tempo curtíssimo.
-    2. EXECUÇÃO: Sequência de 4 e-mails (Anúncio, Benefícios, FAQ/Dúvidas, Last Call).
-    3. FOCO: 100% em Gatilhos de Urgência e Escassez para base que já conhece o produto.`
+    name: 'Lançamento Relâmpago (Injeção de Caixa)',
+    description: 'Oferta ultra-rápida (24h-48h) focado exclusivamente em base morna/quente.',
+    defaultDurationDays: 7,
+    phases: ['Definição da Oferta & Bônus de Velocidade', 'Antecipação Curta (Base)', 'Execução: Abertura Express (24h-48h)', 'Fechamento Imediato & Debriefing'],
+    aiContext: `ESTRUTURA TÁTICA RELÂMPAGO (CASH INJECTION):
+    - PÚBLICO: 100% QUENTE. Excluir completamente públicos frios. 
+    - TRÁFEGO (Remarketing Puro): Meta Ads (Públicos: Lista de Emails, Visitantes 30d, Envolvidos 7d, Carrinho Abandonado).
+    - ESTRATÉGIA DE ANÚNCIO: Objetivo Alcance com frequência alta (2-3x ao dia) para não perder o timing.
+    - GOOGLE ADS: Search focado em Marca + Termos sazonais (ex: "Black Friday", "Oferta Especial").
+    - COPY: Foco total em Escassez Imediata ("Só Hoje", "Últimas Horas", "Link Expira em 24h").
+    - BENCHMARKS: ROI alvo 10x+. Investimento sugerido: 5-10% do faturamento esperado.`
   },
   {
     id: 'seed-meteorico',
-    name: 'Lançamento Meteórico',
-    description: 'Vendas ultra-rápidas via Grupos VIP de WhatsApp.',
-    phases: ['Captação VIP', 'Aquecimento no Grupo', 'Dia do Lançamento', 'Pós-Meteórico'],
-    aiContext: `ESTRUTURA TÁTICA METEÓRICO:
-    1. CAPTAÇÃO: Convite para grupo silencioso. Gatilhos de Pertencimento e Antecipação.
-    2. AQUECIMENTO (D1-D3): Vídeos informais (celular), revelação do desconto e quebra de objeções.
-    3. LANÇAMENTO (D4): Abertura do carrinho no grupo. Prova social instantânea ("Parabéns Fulano!").
-    4. FECHAMENTO: 24h a 48h de vendas intensas com suporte total no privado.`
+    name: 'Lançamento Meteórico (WhatsApp VIP)',
+    description: 'Vendas explosivas de 24h via Grupos VIP. ROI altíssimo e baixo investimento.',
+    defaultDurationDays: 12,
+    phases: ['Antecipação & Captação VIP (WhatsApp)', 'Pertencimento (Aquecimento no Grupo)', 'Dia D: Oferta Meteórica (24h)', 'Escassez Final & Fechamento', 'Debriefing e Caixa'],
+    aiContext: `ESTRUTURA TÁTICA METEÓRICO (MÁQUINA DE WHATSAPP):
+    - TRÁFEGO CAPTAÇÃO (Principal): Meta Ads (FB/IG Stories). Focar em 4-7 dias intensos. Objetivo: Cliques para WhatsApp ou Conversão p/ LP de Grupo.
+    - SEGMENTAÇÃO: Lookalike 1% de Compradores + Envolvidos 30d. Públicos frios amplos com filtro de interesse mínimo.
+    - MECÂNICA DO GRUPO: Silenciar grupo -> Enviar teasers diários -> Revelar oferta 24h antes -> Abrir link de vendas por apenas 24h.
+    - REMARKETING: Retargeting de quem visitou a página de grupo mas não entrou. Google Search para proteção de marca (Expert + Oferta).
+    - BENCHMARKS: ROI 15x-20x. Conversão esperada de ~10% dos membros do grupo.
+    - SEGURANÇA: Cumprir rigorosamente a escassez (tirar do ar após 24h) para educar a base.`
   }
 ];
 

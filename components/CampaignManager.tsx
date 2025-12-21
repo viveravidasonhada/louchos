@@ -13,12 +13,14 @@ interface CampaignManagerProps {
 const CampaignManager: React.FC<CampaignManagerProps> = ({ blueprints, onSave, onClose }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // Fix: Add defaultDurationDays to initial state to match CampaignBlueprint interface
   const [formData, setFormData] = useState<CampaignBlueprint>({
     id: '',
     name: '',
     description: '',
     phases: [],
-    aiContext: ''
+    aiContext: '',
+    defaultDurationDays: 30
   });
 
   // Helper para converter array de strings em texto para textarea (uma por linha)
@@ -32,12 +34,14 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ blueprints, onSave, o
 
   const handleNew = () => {
     setEditingId('new');
+    // Fix: Add defaultDurationDays when creating a new CampaignBlueprint
     setFormData({
       id: '',
       name: '',
       description: '',
       phases: ['Fase 1: ', 'Fase 2: ', 'Fase 3: '],
-      aiContext: 'Descreva aqui os tipos de criativos, mensagens chaves e papéis da equipe que funcionam para este lançamento.'
+      aiContext: 'Descreva aqui os tipos de criativos, mensagens chaves e papéis da equipe que funcionam para este lançamento.',
+      defaultDurationDays: 30
     });
   };
 
@@ -171,15 +175,28 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ blueprints, onSave, o
                 />
               </div>
               
-              <div>
-                 <label className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 block">Descrição Curta</label>
-                 <input
-                  type="text"
-                  value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:border-indigo-500 outline-none"
-                  placeholder="Ex: Focado em ticket alto com poucos leads..."
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                   <label className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 block">Descrição Curta</label>
+                   <input
+                    type="text"
+                    value={formData.description}
+                    onChange={e => setFormData({...formData, description: e.target.value})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:border-indigo-500 outline-none"
+                    placeholder="Ex: Focado em ticket alto com poucos leads..."
+                  />
+                </div>
+                {/* Fix: Added duration field for automation */}
+                <div>
+                   <label className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 block">Duração Padrão (Dias)</label>
+                   <input
+                    type="number"
+                    value={formData.defaultDurationDays}
+                    onChange={e => setFormData({...formData, defaultDurationDays: parseInt(e.target.value) || 0})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:border-indigo-500 outline-none"
+                    placeholder="Ex: 30"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

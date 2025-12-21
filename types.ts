@@ -38,7 +38,7 @@ export interface Expert {
 export interface TeamMember {
   id: string;
   name: string;
-  role: 'Copywriter' | 'Designer' | 'Tráfego' | 'Strategist' | 'Tech' | 'VideoMaker' | 'Social Media' | 'Support';
+  role: 'Copywriter' | 'Designer' | 'Tráfego' | 'Strategist' | 'Tech' | 'VideoMaker' | 'Social Media' | 'Support' | 'Especialista' | 'Closer';
   email: string;
   password?: string;
   avatar?: string;
@@ -50,6 +50,7 @@ export interface CampaignBlueprint {
   description: string;
   phases: string[]; 
   aiContext: string;
+  defaultDurationDays: number; // Nova propriedade para automação de cronograma
 }
 
 export type AttachmentType = 'image' | 'video' | 'doc' | 'link';
@@ -75,7 +76,7 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  strategicRationale?: string; // O "porquê" estratégico desta tarefa
+  strategicRationale?: string;
   observations?: string;
   examples?: string[];
   script?: string; 
